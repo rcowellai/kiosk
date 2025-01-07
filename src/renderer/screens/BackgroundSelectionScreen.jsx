@@ -7,7 +7,7 @@ const backgrounds = [
   './backgrounds/background3.jpg'
 ];
 
-function BackgroundSelectionScreen({ onBackgroundSelect }) {
+function BackgroundSelectionScreen({ onBackgroundSelected, onNext }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleNext = () => {
@@ -20,8 +20,16 @@ function BackgroundSelectionScreen({ onBackgroundSelect }) {
     );
   };
 
-  const handleSelect = () => {
-    onBackgroundSelect(backgrounds[currentIndex]);
+  const handleSelect = async () => {
+    const selectedBg = backgrounds[currentIndex];
+    console.log('[BackgroundSelectionScreen] setActiveBackground =>', selectedBg);
+    const result = await window.electronAPI.setActiveBackground(selectedBg);
+    if (!result.success) {
+      console.error('[BackgroundSelectionScreen] Failed to set background:', result.error);
+      return;
+    }
+    onBackgroundSelected(selectedBg);
+    onNext();
   };
 
   return (
@@ -42,7 +50,6 @@ function BackgroundSelectionScreen({ onBackgroundSelect }) {
       <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>
         Select Your Background
       </h2>
-
       <div 
         style={{
           width: 600,
@@ -55,8 +62,6 @@ function BackgroundSelectionScreen({ onBackgroundSelect }) {
           marginBottom: '20px'
         }}
       />
-
-      {/* Navigation arrows */}
       <div style={{ marginBottom: '20px' }}>
         <button 
           style={{
@@ -80,13 +85,12 @@ function BackgroundSelectionScreen({ onBackgroundSelect }) {
           →
         </button>
       </div>
-
       <button
         style={{
           fontSize: '1.5rem',
           padding: '15px 30px',
           cursor: 'pointer',
-          backgroundColor: '#FFD700', // Gold
+          backgroundColor: '#FFD700',
           color: '#000',
           border: 'none',
           borderRadius: '4px'

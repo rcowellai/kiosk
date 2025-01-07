@@ -4,79 +4,67 @@ import AttractScreen from './screens/AttractScreen';
 import BackgroundSelectionScreen from './screens/BackgroundSelectionScreen';
 import CountdownScreen from './screens/CountdownScreen';
 import ReviewScreen from './screens/ReviewScreen';
-import EmailScreen from './screens/EmailScreen';
+import EmailScreen from './screens/EmailScreen';  // NEW import
 import ThankYouScreen from './screens/ThankYouScreen';
 
 function App() {
   const [screen, setScreen] = useState('attract');
   const [selectedBackground, setSelectedBackground] = useState(null);
-  const [retakeCount, setRetakeCount] = useState(0);
-  const [userEmail, setUserEmail] = useState('');
 
-  // Called when user picks a background in BackgroundSelectionScreen
+  // Called from Attract
+  const goToBackgroundSelection = () => setScreen('backgroundSelection');
+
+  // Called from BackgroundSelection
   const handleBackgroundSelected = (bg) => {
     setSelectedBackground(bg);
-    setRetakeCount(0); // Reset retakes each new session or background pick
-    setScreen('countdown');
   };
+  const goToCountdown = () => setScreen('countdown');
 
-  // Called when the countdown finishes -> move to review
-  const handleCountdownComplete = () => {
-    setScreen('review');
-  };
+  // Called from Countdown
+  const handleCountdownFinish = () => setScreen('review');
 
-  // Called when user confirms (or retakes) from ReviewScreen
-  const handleRetake = () => {
-    if (retakeCount < 3) {
-      setRetakeCount(retakeCount + 1);
-      setScreen('countdown');
-    }
-  };
+  // Called from Review
+  const handleRetake = () => setScreen('countdown');
+  const handleConfirm = () => setScreen('email'); // Now go to Email, not ThankYou
 
-  // Called when user moves from Review to Email
-  const handleConfirmReview = () => {
-    setScreen('email');
-  };
-
-  // Called when user submits email
-  const handleEmailSubmit = (email) => {
-    setUserEmail(email);
+  // Called from EmailScreen
+  const handleEmailSubmitted = () => {
     setScreen('thankYou');
   };
 
-  // Called when ThankYouScreen times out
-  const handleThankYouTimeout = () => {
-    setScreen('attract');
-    // Potentially clear session data if you want a fresh start
-    setSelectedBackground(null);
-    setRetakeCount(0);
-    setUserEmail('');
-  };
+  // ThankYou auto-returns to attract after 20s (we handle that in ThankYouScreen)
+  // but if you needed to handle that state here, you could do so.
 
   return (
     <>
       {screen === 'attract' && (
-        <AttractScreen onNext={() => setScreen('backgroundSelection')} />
+        <AttractScreen onNext={goToBackgroundSelection} />
       )}
       {screen === 'backgroundSelection' && (
-        <BackgroundSelectionScreen onBackgroundSelect={handleBackgroundSelected} />
+        <BackgroundSelectionScreen 
+          onBackgroundSelected={handleBackgroundSelected}
+          onNext={goToCountdown} 
+        />
       )}
       {screen === 'countdown' && (
-        <CountdownScreen onCountdownComplete={handleCountdownComplete} />
+        <CountdownScreen onCountdownFinish={handleCountdownFinish} />
       )}
       {screen === 'review' && (
-        <ReviewScreen
+        <ReviewScreen 
           selectedBackground={selectedBackground}
-          retakeCount={retakeCount}
           onRetake={handleRetake}
-          onConfirm={handleConfirmReview}
+          onConfirm={handleConfirm}
         />
       )}
       {screen === 'email' && (
-        <EmailScreen onSubmitEmail={handleEmailSubmit} />
+        <EmailScreen 
+          onEmailSubmitted={handleEmailSubmitted} 
+        />
       )}
       {screen === 'thankYou' && (
-        <ThankYouScreen onTimeout={handleThankYouTimeout} />
+        <ThankYouScreen 
+          onReturnToAttract={() => setScreen('attract')}
+        />
       )}
     </>
   );

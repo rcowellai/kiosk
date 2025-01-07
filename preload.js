@@ -3,9 +3,18 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   capturePhoto: async () => {
-    console.log('[preload] capturePhoto() invoked');
     const result = await ipcRenderer.invoke('capture-photo');
-    console.log('[preload] capturePhoto() result:', result);
+    return result;
+  },
+
+  setActiveBackground: async (bgPath) => {
+    const result = await ipcRenderer.invoke('set-active-background', bgPath);
+    return result;
+  },
+
+  sendEmail: async (email) => {
+    console.log('[preload] sendEmail() with:', email);
+    const result = await ipcRenderer.invoke('send-email', email);
     return result;
   }
 });

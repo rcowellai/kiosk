@@ -1,48 +1,41 @@
+// CountdownScreen.jsx
 import React, { useState, useEffect } from 'react';
 
-function CountdownScreen({ onCountdownComplete }) {
+function CountdownScreen({ onCountdownFinish }) {
   const [count, setCount] = useState(3);
-  const [photoCaptured, setPhotoCaptured] = useState(false);
+  const [hasTriggeredCapture, setHasTriggeredCapture] = useState(false);
 
-  // 1) Decrement countdown every second until it hits 0 (or below).
+  // Decrement the countdown every second
   useEffect(() => {
     if (count > 0) {
       const timer = setInterval(() => {
-        setCount((prev) => prev - 1);
+        setCount(prev => prev - 1);
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [count]);
+    // If count <= 0, move on to Review
+    console.log('[Countdown] count <= 0, moving to review screen');
+    onCountdownFinish();
+  }, [count, onCountdownFinish]);
 
-  // 2) When count hits 3, trigger camera capture.
+  // Trigger the camera at count=3 (once)
   useEffect(() => {
-    if (count === 3 && !photoCaptured) {
-      console.log('[Countdown] count=3 → triggerPhotoCapture immediately');
+    if (count === 3 && !hasTriggeredCapture) {
+      console.log('[Countdown] count=3 → triggerPhotoCapture');
       triggerPhotoCapture();
+      setHasTriggeredCapture(true);
     }
-  }, [count, photoCaptured]);
-
-  // 3) Separate effect to check if both (count <= 0) & (photoCaptured === true).
-  //    Only then move on to ReviewScreen (or the next screen).
-  useEffect(() => {
-    if (count <= 0 && photoCaptured) {
-      console.log('[Countdown] count <= 0 AND photoCaptured=true → onCountdownComplete()');
-      onCountdownComplete();
-    }
-  }, [count, photoCaptured, onCountdownComplete]);
+  }, [count, hasTriggeredCapture]);
 
   const triggerPhotoCapture = async () => {
-    console.log('[Countdown] triggerPhotoCapture() invoked at count=3');
+    console.log('[Countdown] triggerPhotoCapture() invoked');
     try {
-      // Assuming preload script usage
       const result = await window.electronAPI.capturePhoto();
       console.log('[Countdown] capturePhoto result:', result);
-
       if (!result.success) {
         console.error('[Countdown] Capture failed:', result.error);
       } else {
-        console.log('[Countdown] Photo capture command successful');
-        setPhotoCaptured(true);
+        console.log('[Countdown] Photo capture command issued successfully.');
       }
     } catch (err) {
       console.error('[Countdown] Error calling capture-photo:', err);

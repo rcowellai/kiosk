@@ -1,15 +1,7 @@
 // ReviewScreen.jsx
 import React from 'react';
 
-function ReviewScreen({ 
-  selectedBackground, 
-  retakeCount, 
-  onRetake, 
-  onConfirm 
-}) {
-  const maxRetakes = 3;
-  const canRetake = retakeCount < maxRetakes;
-
+function ReviewScreen({ selectedBackground, onRetake, onConfirm }) {
   return (
     <div 
       style={{
@@ -21,8 +13,7 @@ function ReviewScreen({
         justifyContent: 'center',
         alignItems: 'center',
         fontFamily: 'Arial, sans-serif',
-        textAlign: 'center',
-        position: 'relative'
+        textAlign: 'center'
       }}
     >
       <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>
@@ -35,6 +26,8 @@ function ReviewScreen({
           height: 400,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          // For now, we display only the chosen background as a placeholder
+          // In future, you'd show the actual composited image from GSW
           backgroundImage: `url(${selectedBackground})`,
           border: '4px solid #fff',
           borderRadius: '8px',
@@ -42,36 +35,29 @@ function ReviewScreen({
         }}
       />
 
-      <p style={{ fontSize: '1.25rem' }}>
-        If you’d like to retake, press RETAKE below.
-        <br />
-        (Max {maxRetakes} retakes, used {retakeCount})
-      </p>
-
-      <div>
+      <div style={{ marginTop: 20 }}>
         <button 
           style={{
-            marginRight: 20,
+            marginRight: 40,
             fontSize: '1.2rem',
             padding: '10px 20px',
-            backgroundColor: canRetake ? '#FFD700' : '#999999',
+            backgroundColor: '#FFD700',
             color: '#000',
             border: 'none',
             borderRadius: '4px',
-            cursor: canRetake ? 'pointer' : 'default'
+            cursor: 'pointer'
           }}
-          onClick={canRetake ? onRetake : undefined}
-          disabled={!canRetake}
+          onClick={onRetake}
         >
           Retake
         </button>
 
         <button 
           style={{
-            marginLeft: 20,
+            marginLeft: 40,
             fontSize: '1.2rem',
             padding: '10px 20px',
-            backgroundColor: '#32CD32', // LimeGreen
+            backgroundColor: '#32CD32',
             color: '#000',
             border: 'none',
             borderRadius: '4px',

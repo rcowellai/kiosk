@@ -1,11 +1,12 @@
 // EmailScreen.jsx
 import React, { useState } from 'react';
 
-function EmailScreen({ onSubmitEmail }) {
+function EmailScreen({ onEmailSubmitted }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
   const validateEmail = (value) => {
+    // Very simple validation
     const regex = /^\S+@\S+\.\S+$/;
     return regex.test(value);
   };
@@ -15,12 +16,21 @@ function EmailScreen({ onSubmitEmail }) {
     setError('');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
+      setError('Please enter a valid email.');
       return;
     }
-    onSubmitEmail(email);
+    // If valid, let's call electronAPI.sendEmail
+    console.log('[EmailScreen] Sending email to:', email);
+    const result = await window.electronAPI.sendEmail(email);
+    if (!result.success) {
+      console.error('[EmailScreen] sendEmail failed:', result.error);
+      setError('Email send failed. Please try again.');
+      return;
+    }
+    // If successful
+    onEmailSubmitted();
   };
 
   return (
@@ -41,11 +51,11 @@ function EmailScreen({ onSubmitEmail }) {
         Enter Your Email
       </h2>
 
-      <input 
+      <input
         type="text"
+        placeholder="example@domain.com"
         value={email}
         onChange={handleChange}
-        placeholder="example@domain.com"
         style={{
           padding: '10px',
           fontSize: '1.2rem',

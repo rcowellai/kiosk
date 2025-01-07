@@ -1,7 +1,38 @@
 // ReviewScreen.jsx
 import React from 'react';
 
-function ReviewScreen({ selectedBackground, onRetake, onConfirm }) {
+function ReviewScreen({ compiledPath, onRetake, onConfirm }) {
+  // If compiledPath is null or invalid, we might show a placeholder.
+  // Otherwise, we show the final composited image from GSW.
+
+  // Construct a file:// URL. Also handle backslashes vs. forward slashes.
+  let bgStyle = {};
+  if (compiledPath) {
+    const safePath = compiledPath.replace(/\\/g, '/');
+    bgStyle = {
+      width: 600,
+      height: 400,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundImage: `url("file:///${safePath}")`,
+      border: '4px solid #fff',
+      borderRadius: '8px',
+      marginBottom: '20px'
+    };
+  } else {
+    bgStyle = {
+      width: 600,
+      height: 400,
+      backgroundColor: '#444',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: '20px',
+      border: '4px solid #fff',
+      borderRadius: '8px'
+    };
+  }
+
   return (
     <div 
       style={{
@@ -20,22 +51,11 @@ function ReviewScreen({ selectedBackground, onRetake, onConfirm }) {
         Review Your Photo
       </h2>
 
-      <div 
-        style={{
-          width: 600,
-          height: 400,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          // For now, we display only the chosen background as a placeholder
-          // In future, you'd show the actual composited image from GSW
-          backgroundImage: `url(${selectedBackground})`,
-          border: '4px solid #fff',
-          borderRadius: '8px',
-          marginBottom: '20px'
-        }}
-      />
+      <div style={bgStyle}>
+        {!compiledPath && <p>No image found.</p>}
+      </div>
 
-      <div style={{ marginTop: 20 }}>
+      <div>
         <button 
           style={{
             marginRight: 40,

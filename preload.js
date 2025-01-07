@@ -3,18 +3,24 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   capturePhoto: async () => {
-    const result = await ipcRenderer.invoke('capture-photo');
-    return result;
+    return await ipcRenderer.invoke('capture-photo');
   },
 
   setActiveBackground: async (bgPath) => {
-    const result = await ipcRenderer.invoke('set-active-background', bgPath);
+    return await ipcRenderer.invoke('set-active-background', bgPath);
+  },
+
+  // Start watchers with a capture time string
+  startWatchingCompiled: async (captureTimeString) => {
+    // e.g. new Date() => pass .toISOString(), or just pass .getTime()
+    const result = await ipcRenderer.invoke('start-watching-compiled', captureTimeString);
     return result;
   },
 
-  sendEmail: async (email) => {
-    console.log('[preload] sendEmail() with:', email);
-    const result = await ipcRenderer.invoke('send-email', email);
-    return result;
+  // Provide a listener for the compiled-ready event
+  onCompiledReady: (callback) => {
+    ipcRenderer.on('compiled-ready', (event, filename) => {
+      callback(filename);
+    });
   }
 });

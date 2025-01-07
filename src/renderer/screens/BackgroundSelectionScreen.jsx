@@ -1,18 +1,15 @@
 // BackgroundSelectionScreen.jsx
 import React, { useState } from 'react';
 
-const backgrounds = [
-  './backgrounds/background1.jpg',
-  './backgrounds/background2.jpg',
-  './backgrounds/background3.jpg'
-];
+function BackgroundSelectionScreen({ onNext }) {
+  // We assume you have a set of relative file references for display
+  const backgrounds = [
+    './backgrounds/background1.jpg',
+    './backgrounds/background2.jpg',
+    './backgrounds/background3.jpg'
+  ];
 
-function BackgroundSelectionScreen({ onBackgroundSelected, onNext }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % backgrounds.length);
-  };
 
   const handlePrev = () => {
     setCurrentIndex((prev) =>
@@ -20,15 +17,23 @@ function BackgroundSelectionScreen({ onBackgroundSelected, onNext }) {
     );
   };
 
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % backgrounds.length);
+  };
+
   const handleSelect = async () => {
     const selectedBg = backgrounds[currentIndex];
-    console.log('[BackgroundSelectionScreen] setActiveBackground =>', selectedBg);
+    console.log('[BackgroundSelection] handleSelect -> selectedBg:', selectedBg);
+
+    // 1) Copy the chosen background to "active_bg.jpg"
     const result = await window.electronAPI.setActiveBackground(selectedBg);
     if (!result.success) {
-      console.error('[BackgroundSelectionScreen] Failed to set background:', result.error);
+      console.error('[BackgroundSelection] setActiveBackground failed:', result.error);
       return;
     }
-    onBackgroundSelected(selectedBg);
+    console.log('[BackgroundSelection] Background set successfully.');
+
+    // 2) Move to next step in the flow (usually CountdownScreen)
     onNext();
   };
 
@@ -50,6 +55,7 @@ function BackgroundSelectionScreen({ onBackgroundSelected, onNext }) {
       <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>
         Select Your Background
       </h2>
+
       <div 
         style={{
           width: 600,
@@ -62,6 +68,7 @@ function BackgroundSelectionScreen({ onBackgroundSelected, onNext }) {
           marginBottom: '20px'
         }}
       />
+
       <div style={{ marginBottom: '20px' }}>
         <button 
           style={{
@@ -85,12 +92,13 @@ function BackgroundSelectionScreen({ onBackgroundSelected, onNext }) {
           →
         </button>
       </div>
+
       <button
         style={{
           fontSize: '1.5rem',
           padding: '15px 30px',
           cursor: 'pointer',
-          backgroundColor: '#FFD700',
+          backgroundColor: '#FFD700', // Gold
           color: '#000',
           border: 'none',
           borderRadius: '4px'

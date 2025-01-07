@@ -1,68 +1,81 @@
 // App.jsx
 import React, { useState } from 'react';
+// Screens we assume exist:
 import AttractScreen from './screens/AttractScreen';
 import BackgroundSelectionScreen from './screens/BackgroundSelectionScreen';
 import CountdownScreen from './screens/CountdownScreen';
 import ReviewScreen from './screens/ReviewScreen';
-import EmailScreen from './screens/EmailScreen';  // NEW import
+import EmailScreen from './screens/EmailScreen';
 import ThankYouScreen from './screens/ThankYouScreen';
 
 function App() {
   const [screen, setScreen] = useState('attract');
-  const [selectedBackground, setSelectedBackground] = useState(null);
 
-  // Called from Attract
-  const goToBackgroundSelection = () => setScreen('backgroundSelection');
+  // We'll store the path to the newly compiled .png here.
+  // The Countdown screen will set it once the file is detected, then pass it to ReviewScreen.
+  const [compiledPath, setCompiledPath] = useState(null);
 
-  // Called from BackgroundSelection
-  const handleBackgroundSelected = (bg) => {
-    setSelectedBackground(bg);
+  //---------------------------------------
+  // Navigation / Flow
+  //---------------------------------------
+  const goToBackgroundSelection = () => {
+    setScreen('backgroundSelection');
   };
-  const goToCountdown = () => setScreen('countdown');
 
-  // Called from Countdown
-  const handleCountdownFinish = () => setScreen('review');
-
-  // Called from Review
-  const handleRetake = () => setScreen('countdown');
-  const handleConfirm = () => setScreen('email'); // Now go to Email, not ThankYou
-
-  // Called from EmailScreen
-  const handleEmailSubmitted = () => {
+  // Suppose when you confirm from Email, you go to 'thankYou'
+  const goToThankYou = () => {
     setScreen('thankYou');
   };
 
-  // ThankYou auto-returns to attract after 20s (we handle that in ThankYouScreen)
-  // but if you needed to handle that state here, you could do so.
+  //---------------------------------------
+  // Example flow 
+  // (Attract -> BGSelection -> Countdown -> Review -> Email -> ThankYou)
+  //---------------------------------------
 
   return (
     <>
       {screen === 'attract' && (
         <AttractScreen onNext={goToBackgroundSelection} />
       )}
+
       {screen === 'backgroundSelection' && (
-        <BackgroundSelectionScreen 
-          onBackgroundSelected={handleBackgroundSelected}
-          onNext={goToCountdown} 
+        <BackgroundSelectionScreen
+          // ... you'd pass background selection props, etc.
+          onNext={() => setScreen('countdown')}
         />
       )}
+
       {screen === 'countdown' && (
-        <CountdownScreen onCountdownFinish={handleCountdownFinish} />
+        <CountdownScreen
+          // When the compiled .png is ready, we store it and move to Review
+          onCompiledReady={(filePath) => {
+            setCompiledPath(filePath);
+            setScreen('review');
+          }}
+          // If user wants an alternative approach, could pass a retake limit, etc.
+        />
       )}
+
       {screen === 'review' && (
-        <ReviewScreen 
-          selectedBackground={selectedBackground}
-          onRetake={handleRetake}
-          onConfirm={handleConfirm}
+        <ReviewScreen
+          compiledPath={compiledPath}
+          // Retake -> back to countdown
+          onRetake={() => setScreen('countdown')}
+          // Confirm -> go to email
+          onConfirm={() => setScreen('email')}
         />
       )}
+
       {screen === 'email' && (
-        <EmailScreen 
-          onEmailSubmitted={handleEmailSubmitted} 
+        <EmailScreen
+          onEmailSubmitted={() => goToThankYou()}
         />
       )}
+
       {screen === 'thankYou' && (
-        <ThankYouScreen 
+        <ThankYouScreen
+          // Suppose ThankYou screen auto-returns to 'attract' after 20s, 
+          // or gives user a "Done" button. Just an example.
           onReturnToAttract={() => setScreen('attract')}
         />
       )}

@@ -2,13 +2,14 @@
 import React, { useState } from 'react';
 
 function EmailScreen({ onEmailSubmitted }) {
+  // If you had an existing state for email input
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
-  const validateEmail = (value) => {
-    // Very simple validation
+  // Example: simple validation
+  const validateEmail = (addr) => {
     const regex = /^\S+@\S+\.\S+$/;
-    return regex.test(value);
+    return regex.test(addr);
   };
 
   const handleChange = (e) => {
@@ -16,21 +17,22 @@ function EmailScreen({ onEmailSubmitted }) {
     setError('');
   };
 
-  const handleSubmit = async () => {
+  const handleConfirm = async () => {
+    // If you do an API call or local validation:
     if (!validateEmail(email)) {
-      setError('Please enter a valid email.');
+      setError('Please enter a valid email address.');
       return;
     }
-    // If valid, let's call electronAPI.sendEmail
-    console.log('[EmailScreen] Sending email to:', email);
-    const result = await window.electronAPI.sendEmail(email);
-    if (!result.success) {
-      console.error('[EmailScreen] sendEmail failed:', result.error);
-      setError('Email send failed. Please try again.');
-      return;
-    }
-    // If successful
-    onEmailSubmitted();
+
+    // Optionally call any "sendEmail" logic if you have it
+    // const sendResult = await window.electronAPI.sendEmail(email);
+    // if (!sendResult.success) {
+    //   setError('Error sending email, please try again.');
+    //   return;
+    // }
+
+    // On success: move on to ThankYou
+    onEmailSubmitted(); 
   };
 
   return (
@@ -53,9 +55,9 @@ function EmailScreen({ onEmailSubmitted }) {
 
       <input
         type="text"
-        placeholder="example@domain.com"
         value={email}
         onChange={handleChange}
+        placeholder="example@domain.com"
         style={{
           padding: '10px',
           fontSize: '1.2rem',
@@ -65,11 +67,9 @@ function EmailScreen({ onEmailSubmitted }) {
           marginBottom: '10px'
         }}
       />
-      {error && (
-        <p style={{ color: 'red', margin: '0 0 10px' }}>{error}</p>
-      )}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <button 
+      <button
         style={{
           fontSize: '1.2rem',
           padding: '10px 20px',
@@ -79,9 +79,9 @@ function EmailScreen({ onEmailSubmitted }) {
           borderRadius: '4px',
           cursor: 'pointer'
         }}
-        onClick={handleSubmit}
+        onClick={handleConfirm}
       >
-        Submit
+        Confirm
       </button>
     </div>
   );

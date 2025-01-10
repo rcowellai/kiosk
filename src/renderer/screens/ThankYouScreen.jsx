@@ -3,17 +3,22 @@ import React, { useEffect } from 'react';
 
 function ThankYouScreen({ onReturnToAttract }) {
   useEffect(() => {
-    // 20 second timer
+    // 1) After 20s, go to attract
     const timer = setTimeout(() => {
-      console.log('[ThankYouScreen] 20s inactivity, returning to attract');
       onReturnToAttract();
     }, 20000);
 
     return () => clearTimeout(timer);
   }, [onReturnToAttract]);
 
+  // 2) If user clicks anywhere, also return to attract
+  const handleClick = () => {
+    onReturnToAttract();
+  };
+
   return (
-    <div 
+    <div
+      onClick={handleClick}
       style={{
         height: '100vh',
         display: 'flex',
@@ -31,7 +36,7 @@ function ThankYouScreen({ onReturnToAttract }) {
         Your session is complete.
       </p>
       <p style={{ marginTop: '1rem', fontSize: '1rem' }}>
-        Returning to main screen in 20 seconds...
+        Returning to main screen in 20 seconds or tap anywhere to return now.
       </p>
     </div>
   );
